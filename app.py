@@ -159,11 +159,14 @@ def post():
         rand_freq_list.append(rand)
         rand_freq_list.sort()
     cumulat_bins_count = [0]*121
+    index = 0
+    cumulat_bins_count = [0]*121
     for count, value in enumerate(rand_freq_list):
+
         index = 0
-        while value > cumulat_bins[index] and index < 119:
+        while value > cumulat_bins[index +1] and index < 119:
             index +=1
-    
+
         if value < cumulat_bins[index + 1]:
             cumulat_bins_count[index] += 1
         else:

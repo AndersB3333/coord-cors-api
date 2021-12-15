@@ -19,10 +19,10 @@ def post():
 75:	1, 76:	0, 77:	0, 78:	0, 79:	0, 80:	0, 81:	1, 82:	1, 83:	2, 84: 1,  85:	1, 86:	0, 87:	0, 88:	0, 89:	0, 90:	0, 91:	0, 92:	0, 93:0,
 94:	1, 95:	0, 96:	0, 97:	0, 98:	0, 99:	0, 100:	0, 101:	0, 102:	0, 103:	0, 104:	0, 105:	0, 106:	0, 107:	0, 108:	0, 109:	0, 110:	0, 111:	0, 112:	0, 113:	0, 114:	0, 115:	0, 116:	0, 117:	0, 118:	0, 119:	0, 120:	0, 121:	0,
 }
-
-    request_data = request.get_json()
     
-    df = pd.DataFrame(request_data)
+    request_data = request.get_json()
+    print(request_data)
+    df = pd.DataFrame(request_data, columns=["value"])
     total_shots = df.value.sum()
     df['relative_freq']= round(df.value / total_shots,4)
     strong_bins = []

@@ -24,7 +24,7 @@ def post():
     
     df = pd.DataFrame(request_data)
     total_shots = df.value.sum()
-    df['relative_freq']= round(df.value / total_shots,3)
+    df['relative_freq']= round(df.value / total_shots,4)
     strong_bins = []
     values_list = []
     for i in df.value:
@@ -36,7 +36,7 @@ def post():
     for i in test_points:
         t_sum += i
     for i, val in enumerate(df.relative_freq):
-        if val >= 0.05:
+        if val >= 0.1:
             strong_bins.append(i)
     qual_score = t_sum / total_shots
     qual_score = abs((abs(qual_score - 6) / 7))
@@ -136,16 +136,17 @@ def post():
     def prob_applier(centroid, i, value):
         distance = cor_dist_calc(centroid, i)
         direction = cor_dir_prob_r(cor_dir_calc(centroid, i))
-        final = (value * direction) / (distance ** qual_score)
+        final = ((value **2) * direction) / (((1+ distance * qual_score)**2) + abs(distance - 15) / 1000)
+        final = final * 100
         return final
     for count, value in enumerate(adj_rel_list):
         if coordinates[count] == centroid:
             if coordinates[count] in strong_bins_cord:
-                continue
-            else:
-                continue
+                adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000 * (value + 1)) * 100
+            else: adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000) * 100
+                
         elif coordinates[count] in strong_bins_cord:
-            round((adj_rel_list[count] + prob_applier(centroid, coordinates[count], value)) / 2, 5)
+            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) * (value + 1)
         else:
             adj_rel_list[count] = prob_applier(centroid, coordinates[count], value)
     cumulat_bins = []
@@ -158,7 +159,6 @@ def post():
         rand = round(random.uniform(min(cumulat_bins), max(cumulat_bins)),5)
         rand_freq_list.append(rand)
         rand_freq_list.sort()
-    cumulat_bins_count = [0]*121
     index = 0
     cumulat_bins_count = [0]*121
     for count, value in enumerate(rand_freq_list):

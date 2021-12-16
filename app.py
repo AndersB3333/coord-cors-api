@@ -61,10 +61,12 @@ def post():
     strong_bins_cord = []
     for i in strong_bins:
         strong_bins_cord.append(coordinates[i])
+        
     centroid = []
     x_cor_sum = 0
     y_cor_sum = 0
     for count, cord in enumerate(strong_bins_cord):
+
         x_cor_sum += strong_bins_cord[count][0]
         y_cor_sum += strong_bins_cord[count][1]
     x_ave = x_cor_sum / len(strong_bins_cord)
@@ -134,7 +136,7 @@ def post():
         elif -20 <= angle <= -1:
             return 0.2
         else:
-            raise ValueError("Unsupported value: {}".format(angle))
+            raise ValueError("Unsupported value: {}".format(angle))   
     def prob_applier(centroid, i, value):
         distance = cor_dist_calc(centroid, i)
         direction = cor_dir_prob_r(cor_dir_calc(centroid, i))
@@ -147,9 +149,9 @@ def post():
                 adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000 * (value + 1)) * 100 + value * 0.7
             else: adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000) * 100 + value * 0.7
         elif coordinates[count] in strong_bins_cord:
-            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) * (value + 1)
+            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) 
         else:
-            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value)
+            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) 
     cumulat_bins = []
     cumulat_sum = 0
     for i in adj_rel_list:
@@ -160,6 +162,7 @@ def post():
         rand = round(random.uniform(min(cumulat_bins), max(cumulat_bins)),5)
         rand_freq_list.append(rand)
         rand_freq_list.sort()
+        
     index = 0
     cumulat_bins_count = [0]*121
     for count, value in enumerate(rand_freq_list):

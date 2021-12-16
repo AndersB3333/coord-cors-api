@@ -139,13 +139,13 @@ def post():
         distance = cor_dist_calc(centroid, i)
         direction = cor_dir_prob_r(cor_dir_calc(centroid, i))
         final = (value **2) * direction / (((1+distance) * qual_score)**2) + abs(distance-15) * qual_score / 1000
-        final = final * 100
+        final = final * 100 + value * 0.8
         return final
     for count, value in enumerate(adj_rel_list):
         if coordinates[count] == centroid:
             if coordinates[count] in strong_bins_cord:
-                adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000 * (value + 1)) * 100
-            else: adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000) * 100
+                adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000 * (value + 1)) * 100 + value * 0.7
+            else: adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000) * 100 + value * 0.7
         elif coordinates[count] in strong_bins_cord:
             adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) * (value + 1)
         else:
@@ -165,6 +165,8 @@ def post():
     for count, value in enumerate(rand_freq_list):
 
         index = 0
+        if cumulat_bins[119] < value <= cumulat_bins[120]:
+            cumulat_bins_count[120] +=1
         while value > cumulat_bins[index +1] and index < 119:
             index +=1
 

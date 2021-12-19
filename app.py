@@ -26,7 +26,7 @@ def post():
     df['relative_freq']= round(df.value / total_shots,4)
     strong_bins = []
     for i, val in enumerate(df.relative_freq):
-        if val >= 0.05:
+        if val >= 0.1:
             strong_bins.append(i)
     values_list = []
     for i in df.value:
@@ -71,8 +71,8 @@ def post():
         y_cor_sum += strong_bins_cord[count][1]
     x_ave = x_cor_sum / len(strong_bins_cord)
     y_ave = y_cor_sum / len(strong_bins_cord)
-    centroid.append(x_ave)
-    centroid.append(y_ave)
+    centroid.append(round(x_ave))
+    centroid.append(round(y_ave))
     def cor_dist_calc(cor1,cor2):
         dist_x = (cor2[0]-cor1[0])
         dist_y =  (cor2[1]-cor1[1])
@@ -140,16 +140,16 @@ def post():
     def prob_applier(centroid, i, value):
         distance = cor_dist_calc(centroid, i)
         direction = cor_dir_prob_r(cor_dir_calc(centroid, i))
-        final = (value **2) * direction / (((1+distance) * qual_score)**2) + abs(distance-15) * qual_score / 1000
-        final = final * 100 + value * 0.8
+        final = (value) * direction / (1+distance) **2 + abs(distance -15) * qual_score / 1000000
+        final = final * 10000
         return final
     for count, value in enumerate(adj_rel_list):
         if coordinates[count] == centroid:
             if coordinates[count] in strong_bins_cord:
-                adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000 * (value + 1)) * 100 + value * 0.7
-            else: adj_rel_list[count] = ((value **2) * 0.26 / ((1.5 * qual_score) **2) + 15 * qual_score / 1000) * 100 + value * 0.7
+                adj_rel_list[count] = (value) * 0.25 / (1.8 **2)  * 0.1
+            else: adj_rel_list[count] = ((value) * 0.25 / (1.8 **2) + (15 * qual_score / 1000000)) * 10000
         elif coordinates[count] in strong_bins_cord:
-            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) 
+            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) * 0.1
         else:
             adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) 
     cumulat_bins = []

@@ -21,13 +21,9 @@ def post():
 }
     
     request_data = request.get_json()
-    print(request_data[121])
-    if request_data[121] == 0 or request_data[121] == 1:
-        pref_hand = request_data[121]
-    else:
-        raise ValueError("Unsupported radio button Value:")
-    request_data.remove(request_data[121])
     df = pd.DataFrame(request_data, columns=['value'])
+    pref_hand = df.value.iloc[-1]
+    df = df.drop(df.value.iloc[-1])
     total_shots = df.value.sum()
     df['relative_freq']= round(df.value / total_shots,4)
     strong_bins = []

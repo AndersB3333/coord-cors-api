@@ -21,7 +21,7 @@ def post():
 }
     
     request_data = request.get_json()
-
+    print(request_data[121])
     if request_data[121] == 0 or request_data[121] == 1:
         pref_hand = request_data[121]
     else:

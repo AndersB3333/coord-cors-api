@@ -21,12 +21,18 @@ def post():
 }
     
     request_data = request.get_json()
+
+    if request_data[121] == 0 or request_data[121] == 1:
+        pref_hand = request_data[121]
+    else:
+        raise ValueError("Unsupported radio button Value:")
+    request_data.remove(request_data[121])
     df = pd.DataFrame(request_data, columns=['value'])
     total_shots = df.value.sum()
     df['relative_freq']= round(df.value / total_shots,4)
     strong_bins = []
     for i, val in enumerate(df.relative_freq):
-        if val >= 0.1:
+        if val >= 0.05:
             strong_bins.append(i)
     values_list = []
     for i in df.value:
@@ -61,18 +67,16 @@ def post():
     strong_bins_cord = []
     for i in strong_bins:
         strong_bins_cord.append(coordinates[i])
-        
     centroid = []
     x_cor_sum = 0
     y_cor_sum = 0
     for count, cord in enumerate(strong_bins_cord):
-
         x_cor_sum += strong_bins_cord[count][0]
         y_cor_sum += strong_bins_cord[count][1]
     x_ave = x_cor_sum / len(strong_bins_cord)
     y_ave = y_cor_sum / len(strong_bins_cord)
-    centroid.append(round(x_ave))
-    centroid.append(round(y_ave))
+    centroid.append(x_ave)
+    centroid.append(y_ave)
     def cor_dist_calc(cor1,cor2):
         dist_x = (cor2[0]-cor1[0])
         dist_y =  (cor2[1]-cor1[1])
@@ -136,22 +140,79 @@ def post():
         elif -20 <= angle <= -1:
             return 0.2
         else:
-            raise ValueError("Unsupported value: {}".format(angle))   
+            raise ValueError("Unsupported value: {}".format(angle))
+    def cor_dir_prob_l(angle):
+        if -1 <= angle <= 1:
+            return 0.18
+        elif 1 < angle < 20:
+            return 0.2
+        elif 20 <= angle < 40:
+            return 0.22
+        elif 40 <= angle < 50:
+            return 0.25
+        elif 50 <= angle < 70:
+            return 0.22
+        elif 70 <= angle < 85:
+            return 0.2
+        elif 85 <= angle < 95:
+            return 0.18
+        elif 95 <= angle < 115:
+            return 0.165
+        elif 115 <= angle < 125:
+            return 0.15
+        elif 125 <= angle < 140:
+            return 0.12
+        elif 140 <= angle < 155:
+            return 0.15
+        elif 155 <= angle < 175:
+            return 0.165
+        elif 175 <= angle <= 180:
+            return 0.18
+        elif -179 <= angle < -175:
+            return 0.18
+        elif -179 <= angle < -165:
+            return 0.2
+        elif -165 <= angle < -140:
+            return 0.22
+        elif -140 <= angle < -130:
+            return 0.25
+        elif -130 <= angle < -110:
+            return 0.22
+        elif -110 <= angle < -95:
+            return 0.2
+        elif -95 <= angle < -85:
+            return 0.18
+        elif -85 <= angle < -65:
+            return 0.165
+        elif -65 <= angle < -50:
+            return 0.15
+        elif -50 <= angle < -40:
+            return 0.12
+        elif -40 <= angle < -20:
+            return 0.15
+        elif -20 <= angle <= -1:
+            return 0.165
+        else:
+            raise ValueError("Unsupported value: {}".format(angle))
+    if pref_hand == 0:
+        dir_function = cor_dir_prob_r
+    else:
+        dir_function = cor_dir_prob_l
     def prob_applier(centroid, i, value):
         distance = cor_dist_calc(centroid, i)
-        direction = cor_dir_prob_r(cor_dir_calc(centroid, i))
-        final = (value) * direction / (1+distance) **2 + abs(distance -15) * qual_score / 1000000
+        direction = dir_function(cor_dir_calc(centroid, i))
+        final = value * direction / (1+distance) **2 + abs(distance-15) * qual_score / 1000000
         final = final * 10000
         return final
     for count, value in enumerate(adj_rel_list):
         if coordinates[count] == centroid:
             if coordinates[count] in strong_bins_cord:
-                adj_rel_list[count] = (value) * 0.25 / (1.8 **2)  * 1000 * 0.35
+                adj_rel_list[count] = (value) * 0.25 / (1.8 **2)  * 0.1
             else: adj_rel_list[count] = ((value) * 0.25 / (1.8 **2) + (15 * qual_score / 1000000)) * 10000
         elif coordinates[count] in strong_bins_cord:
             adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) * 0.1
         else:
-            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value) 
+            adj_rel_list[count] = prob_applier(centroid, coordinates[count], value)
     cumulat_bins = []
     cumulat_sum = 0
     for i in adj_rel_list:
@@ -162,7 +223,6 @@ def post():
         rand = round(random.uniform(min(cumulat_bins), max(cumulat_bins)),5)
         rand_freq_list.append(rand)
         rand_freq_list.sort()
-        
     index = 0
     cumulat_bins_count = [0]*121
     for count, value in enumerate(rand_freq_list):

@@ -23,7 +23,7 @@ def post():
     request_data = request.get_json()
     df = pd.DataFrame(request_data, columns=['value'])
     pref_hand = df.value.iloc[-1]
-    df = df.drop(df.value.iloc[-1])
+    df.drop(df.tail(1).index, inplace=True)
     total_shots = df.value.sum()
     df['relative_freq']= round(df.value / total_shots,4)
     strong_bins = []

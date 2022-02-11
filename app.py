@@ -30,6 +30,10 @@ def post():
     for i, val in enumerate(df.relative_freq):
         if val >= 0.1:
             strong_bins.append(i)
+    if len(strong_bins) == 0:
+        for i, val in enumerate(df.relative_freq):
+            if val >= 0.008:
+                strong_bins.append(i)
     values_list = []
     for i in df.value:
         values_list.append(i)
